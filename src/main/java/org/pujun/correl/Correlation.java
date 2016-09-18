@@ -20,6 +20,9 @@ import static java.lang.Math.abs;
 /**
  * Created by milletpu on 16/4/9.
  */
+
+//git test
+
 public class Correlation {
     private double pearsonsResult;
     private double[] lagResult = new double[3];
