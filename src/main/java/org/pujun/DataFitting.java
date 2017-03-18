@@ -114,9 +114,9 @@ public class DataFitting {
      * @param data 传入的数组
      * @param type 子数组类型 - 上升、下降、峰值、低谷
      * @param len 子数组长度 - 4、8、12、16、20、24、32、40
-     * @param num 子数组个数
+     * @param maxNum 子数组个数
      */
-    public double[] getDataWithTrend(double[] data, String type, int len, int num){
+    public double[] getDataWithTrend(double[] data, String type, int len, int maxNum){
         double[] result = new double[len];
 
         if (type.equals("up")) {
@@ -124,27 +124,68 @@ public class DataFitting {
             for (int i = 0; i<data.length; i++) {
                 result[n] = data[i];
                 double lastResult = data[i];
-                //System.out.println(result[num]);
                 for (int j = i + 1; j < data.length; j++) {
-                    if (data[j] > lastResult && n < 3) {
+                    if (data[j] > lastResult && n < len-1) {
                         result[++n] = data[j];
                         lastResult = data[j];
                     }
                 }
-                if (n == 3) break;
+                if (n == len - 1) break;
                 else n = 0;
-
             }
 
-
-
         } else if (type.equals("down")) {
-
+            int n = 0;
+            for (int i = 0; i<data.length; i++) {
+                result[n] = data[i];
+                double lastResult = data[i];
+                for (int j = i + 1; j < data.length; j++) {
+                    if (data[j] < lastResult && n < len-1) {
+                        result[++n] = data[j];
+                        lastResult = data[j];
+                    }
+                }
+                if (n == len - 1) break;
+                else n = 0;
+            }
 
         } else if (type.equals("peak")) {
-
+            int n = 0;
+            for (int i = 0; i<data.length; i++) {
+                result[n] = data[i];
+                double lastResult = data[i];
+                for (int j = i + 1; j < data.length; j++) {
+                    if (data[j] > lastResult && n < (len/2)) {
+                        result[++n] = data[j];
+                        lastResult = data[j];
+                    }
+                    if (data[j] < lastResult && n >= (len/2) && n < len-1) {
+                        result[++n] = data[j];
+                        lastResult = data[j];
+                    }
+                }
+                if (n == len - 1) break;
+                else n = 0;
+            }
 
         } else if (type.equals("trough")) {
+            int n = 0;
+            for (int i = 0; i<data.length; i++) {
+                result[n] = data[i];
+                double lastResult = data[i];
+                for (int j = i + 1; j < data.length; j++) {
+                    if (data[j] < lastResult && n < (len/2)) {
+                        result[++n] = data[j];
+                        lastResult = data[j];
+                    }
+                    if (data[j] > lastResult && n >= (len/2) && n < len-1) {
+                        result[++n] = data[j];
+                        lastResult = data[j];
+                    }
+                }
+                if (n == len - 1) break;
+                else n = 0;
+            }
 
         }
         return result;
@@ -154,55 +195,13 @@ public class DataFitting {
         DataFitting df = new DataFitting();
         //df.getDataByCity("济南市", "2015-03-01 00:00:00", "2015-04-01 00:00:00", 0);
         //df.getDataByStation("1299A", "2015-03-01 09:00:00", "2015-06-01 09:00:00");
-        double[] data = {2000,2100,15,2,22,10,50,32,129,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
-        double[] result = df.getDataWithTrend(data,"up",4,5);
+        double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
+
+        double[] result = df.getDataWithTrend(data,"trough",8,5);
         for (int m = 0; m<result.length;m++){
             System.out.println(result[m]);
         }
 
-
-
-
-//        ArrayList<Double> result = new ArrayList<Double>(4);
-//
-//        for (int i = 0; i<data.length; i++){
-//            result.add(data[i]);
-//            double lastResult = data[i];
-//            for (int j = i+1; j<data.length;j++){
-//                if (data[j] > lastResult && result.size()<4){
-//                    result.add(data[j]);
-//                    lastResult = data[j];
-//                }
-//            }
-//            if (result.size() == 4){
-//                break;
-//            }
-//        }
-//
-//
-//        double[] resultArray = new double[result.size()];;
-//        for (int i = 0; i < result.size(); i++) {
-//            resultArray[i] = result.get(i);
-//            System.out.println(result.get(i));
-//        }
-
-//        double[] result = new double[4];
-//        int num = 0;
-//        for (int i = 0; i<data.length; i++) {
-//            result[num] = data[i];
-//            double lastResult = data[i];
-//            //System.out.println(result[num]);
-//            for (int j = i + 1; j < data.length; j++) {
-//                if (data[j] > lastResult && num < 3) {
-//                    result[++num] = data[j];
-//                    lastResult = data[j];
-//                }
-//            }
-//            if (num == 3) break;
-//            else num = 0;
-//
-//        }
-//
 
     }
 
