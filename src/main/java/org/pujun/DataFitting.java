@@ -54,11 +54,18 @@ public class DataFitting {
         double[] dataArray = new double[dataSeries.size()];
         for (int i = 0; i < dataSeries.size(); i++) {
             dataArray[i] = dataSeries.get(i);
-            System.out.println(dataSeries.get(i));
         }
 
         //返回查询到的数据
-        return dataArray;
+        if (dataArray.length == 0){
+            System.out.println("getDataByCity()：起始时间点没有数据，请更换起始时间startTime！");
+            System.out.println("getDataByCity()：一共采集到 " + dataArray.length + " 个数据！");
+            return null;
+        }else {
+            System.out.println("getDataByCity()：一共采集到 " + dataArray.length + " 个数据！");
+            return dataArray;
+        }
+
 
     }
 
@@ -100,11 +107,17 @@ public class DataFitting {
         double[] dataArray = new double[dataSeries.size()];
         for (int i = 0; i < dataSeries.size(); i++) {
             dataArray[i] = dataSeries.get(i);
-            System.out.println(dataSeries.get(i));
         }
 
         //返回查询到的数据数组
-        return dataArray;
+        if (dataArray.length == 0){
+            System.out.println("getDataByStation()：起始时间点没有数据，请更换起始时间startTime！");
+            System.out.println("getDataByStation()：一共采集到 " + dataArray.length + " 个数据！");
+            return null;
+        }else {
+            System.out.println("getDataByStation()：一共采集到 " + dataArray.length + " 个数据！");
+            return dataArray;
+        }
 
     }
 
@@ -118,20 +131,26 @@ public class DataFitting {
      */
     public double[] getDataWithTrend(double[] data, String type, int len, int maxNum){
         double[] result = new double[len];
+        for(int i = 0; i<result.length; i++) result[i] = -1;
 
         if (type.equals("up")) {
             int n = 0;
-            for (int i = 0; i<data.length; i++) {
-                result[n] = data[i];
-                double lastResult = data[i];
-                for (int j = i + 1; j < data.length; j++) {
-                    if (data[j] > lastResult && n < len-1) {
-                        result[++n] = data[j];
-                        lastResult = data[j];
+            int num = 0;
+            while(num < maxNum) {
+                for (int i = 0; i < data.length; i++) {
+                    result[n] = data[i];
+                    double lastResult = data[i];
+                    for (int j = i + 1; j < data.length; j++) {
+                        if (data[j] > lastResult && n < len - 1) {
+                            result[++n] = data[j];
+                            lastResult = data[j];
+                        }
                     }
+                    if (n == len - 1) break;
+                    else n = 0;
                 }
-                if (n == len - 1) break;
-                else n = 0;
+
+                num++;
             }
 
         } else if (type.equals("down")) {
@@ -188,19 +207,22 @@ public class DataFitting {
             }
 
         }
-        return result;
+
+        if (result[result.length-1] == -1) {
+            System.out.println("getDataWithTrend()：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
+            return null;
+        } else {
+            return result;
+        }
     }
 
     public static void main(String[] args) throws ParseException {
         DataFitting df = new DataFitting();
-        //df.getDataByCity("济南市", "2015-03-01 00:00:00", "2015-04-01 00:00:00", 0);
-        //df.getDataByStation("1299A", "2015-03-01 09:00:00", "2015-06-01 09:00:00");
+        //double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-03-05 00:00:00");
         double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
 
-        double[] result = df.getDataWithTrend(data,"trough",8,5);
-        for (int m = 0; m<result.length;m++){
-            System.out.println(result[m]);
-        }
+        double[] result = df.getDataWithTrend(data,"up",4,5);
+        for (double aResult : result) System.out.print(aResult + ", ");
 
 
     }
