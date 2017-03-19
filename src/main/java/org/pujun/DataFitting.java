@@ -132,9 +132,8 @@ public class DataFitting {
      * @param data 传入的数组
      * @param type 子数组类型 - 上升、下降、峰值、低谷
      * @param len 子数组长度 - 4、8、12、16、20、24、32、40
-     * @param maxNum 子数组个数
      */
-    public double[][] getDataWithTrend(double[] data, String type, int len, int maxNum, String fileAdd) throws IOException {
+    public double[][] getDataWithTrend(double[] data, String type, int len, String fileAdd) throws IOException {
         double[] resultOne = new double[len];
         ArrayList<Double> resultArray = new ArrayList<Double>();
         for(int i = 0; i< resultOne.length; i++) resultOne[i] = -1;
@@ -260,43 +259,51 @@ public class DataFitting {
 
         //返回结果
         if (resultDouble.length == 0){
-            System.out.println("getDataWithTrend()：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
+            System.out.println("getDataWithTrend()."+len+type+"：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
             return null;
         } else {
-            System.out.println("getDataWithTrend()：一共查询到 "+ resultDouble.length/len +" 个字数组！");
+            System.out.println("getDataWithTrend()."+len+type+"：一共查询到 "+ resultDouble.length/len +" 个子数组！");
             //for (double aResult : resultDouble) System.out.print(aResult + ", ");
             return result;
         }
     }
 
     /**
-     * 重载getDataWithTrend，默认csv文件地址"result.csv"
+     * 重载getDataWithTrend，默认csv文件地址len+type.csv
      * @param data
      * @param type
      * @param len
-     * @param maxNum
      * @return
      * @throws IOException
      */
-    public double[][] getDataWithTrend(double[] data, String type, int len, int maxNum) throws IOException {
-        String fileAdd = "result.csv";
-        return getDataWithTrend(data,type,len,maxNum,fileAdd);
+    public double[][] getDataWithTrend(double[] data, String type, int len) throws IOException {
+        String fileAdd = len + type + ".csv";
+        return getDataWithTrend(data,type,len,fileAdd);
     }
 
     public static void main(String[] args) throws ParseException, IOException {
-        //double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
+        double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
 
         DataFitting df = new DataFitting();
-        double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-04-01 00:00:00");
-        double[][] result = df.getDataWithTrend(data,"up",4,5,"up.csv");
+        //double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-11-01 00:00:00");
+        df.getDataWithTrend(testData, "up", 4);
 
-        //控制台打印看一看
-        for (int i = 0; i < 11; i++) {
-            for (int j = 0; j < 4; j++) {
-                System.out.print(result[i][j] + ", ");
-            }
-            System.out.println("");
-        }
+
+//        for(int len =4; len<=32; len=len+4) {
+//            df.getDataWithTrend(data, "up", len);
+//            df.getDataWithTrend(data, "down", len);
+//            df.getDataWithTrend(data, "peak", len);
+//            df.getDataWithTrend(data, "trough", len);
+//        }
+
+
+//        //控制台打印看一看
+//        for (int i = 0; i < 11; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                System.out.print(result[i][j] + ", ");
+//            }
+//            System.out.println("");
+//        }
 
 
     }
