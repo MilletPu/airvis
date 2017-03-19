@@ -136,21 +136,17 @@ public class DataFitting {
         if (type.equals("up")) {
             int n = 0;
             int num = 0;
-            while(num < maxNum) {
-                for (int i = 0; i < data.length; i++) {
-                    result[n] = data[i];
-                    double lastResult = data[i];
-                    for (int j = i + 1; j < data.length; j++) {
-                        if (data[j] > lastResult && n < len - 1) {
-                            result[++n] = data[j];
-                            lastResult = data[j];
-                        }
+            for (int i = 0; i < data.length; i++) {
+                result[n] = data[i];
+                double lastResult = data[i];
+                for (int j = i + 1; j < data.length; j++) {
+                    if (data[j] > lastResult && n < len - 1) {
+                        result[++n] = data[j];
+                        lastResult = data[j];
                     }
-                    if (n == len - 1) break;
-                    else n = 0;
                 }
-
-                num++;
+                if (n == len - 1) break;
+                else n = 0;
             }
 
         } else if (type.equals("down")) {
