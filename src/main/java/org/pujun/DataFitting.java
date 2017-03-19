@@ -146,8 +146,6 @@ public class DataFitting {
                     }
                 }
 
-//                if (n == len - 1) break;
-//                else n = 0;
                 if (n == len - 1) {
                     for (double aResult : resultOne) resultArray.add(aResult);
                     n = 0;
@@ -155,8 +153,6 @@ public class DataFitting {
                     n = 0;
                 }
             }
-
-
 
         } else if (type.equals("down")) {
             int n = 0;
@@ -170,8 +166,6 @@ public class DataFitting {
                     }
                 }
 
-//                if (n == len - 1) break;
-//                else n = 0;
                 if (n == len - 1) {
                     for (double aResult : resultOne) resultArray.add(aResult);
                     n = 0;
@@ -196,8 +190,6 @@ public class DataFitting {
                     }
                 }
 
-//                if (n == len - 1) break;
-//                else n = 0;
                 if (n == len - 1) {
                     for (double aResult : resultOne) resultArray.add(aResult);
                     n = 0;
@@ -222,8 +214,6 @@ public class DataFitting {
                     }
                 }
 
-//                if (n == len - 1) break;
-//                else n = 0;
                 if (n == len - 1) {
                     for (double aResult : resultOne) resultArray.add(aResult);
                     n = 0;
@@ -233,13 +223,6 @@ public class DataFitting {
             }
 
         }
-
-
-//        if (result[result.length-1] == -1) {
-//            System.out.println("getDataWithTrend()：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
-//            return null;
-//        } else {
-//            return result;
 
         //ArrayList转数组
         double[] resultDouble = new double[resultArray.size()];
