@@ -130,85 +130,131 @@ public class DataFitting {
      * @param maxNum 子数组个数
      */
     public double[] getDataWithTrend(double[] data, String type, int len, int maxNum){
-        double[] result = new double[len];
-        for(int i = 0; i<result.length; i++) result[i] = -1;
+        double[] resultOne = new double[len];
+        ArrayList<Double> resultArray = new ArrayList<Double>();
+        for(int i = 0; i< resultOne.length; i++) resultOne[i] = -1;
 
         if (type.equals("up")) {
             int n = 0;
             for (int i = 0; i < data.length; i++) {
-                result[n] = data[i];
+                resultOne[n] = data[i];
                 double lastResult = data[i];
                 for (int j = i + 1; j < data.length; j++) {
                     if (data[j] > lastResult && n < len - 1) {
-                        result[++n] = data[j];
+                        resultOne[++n] = data[j];
                         lastResult = data[j];
                     }
                 }
-                if (n == len - 1) break;
-                else n = 0;
+
+//                if (n == len - 1) break;
+//                else n = 0;
+                if (n == len - 1) {
+                    for (double aResult : resultOne) resultArray.add(aResult);
+                    n = 0;
+                } else {
+                    n = 0;
+                }
             }
+
+
 
         } else if (type.equals("down")) {
             int n = 0;
             for (int i = 0; i<data.length; i++) {
-                result[n] = data[i];
+                resultOne[n] = data[i];
                 double lastResult = data[i];
                 for (int j = i + 1; j < data.length; j++) {
                     if (data[j] < lastResult && n < len-1) {
-                        result[++n] = data[j];
+                        resultOne[++n] = data[j];
                         lastResult = data[j];
                     }
                 }
-                if (n == len - 1) break;
-                else n = 0;
+
+//                if (n == len - 1) break;
+//                else n = 0;
+                if (n == len - 1) {
+                    for (double aResult : resultOne) resultArray.add(aResult);
+                    n = 0;
+                } else {
+                    n = 0;
+                }
             }
 
         } else if (type.equals("peak")) {
             int n = 0;
             for (int i = 0; i<data.length; i++) {
-                result[n] = data[i];
+                resultOne[n] = data[i];
                 double lastResult = data[i];
                 for (int j = i + 1; j < data.length; j++) {
                     if (data[j] > lastResult && n < (len/2)) {
-                        result[++n] = data[j];
+                        resultOne[++n] = data[j];
                         lastResult = data[j];
                     }
                     if (data[j] < lastResult && n >= (len/2) && n < len-1) {
-                        result[++n] = data[j];
+                        resultOne[++n] = data[j];
                         lastResult = data[j];
                     }
                 }
-                if (n == len - 1) break;
-                else n = 0;
+
+//                if (n == len - 1) break;
+//                else n = 0;
+                if (n == len - 1) {
+                    for (double aResult : resultOne) resultArray.add(aResult);
+                    n = 0;
+                } else {
+                    n = 0;
+                }
             }
 
         } else if (type.equals("trough")) {
             int n = 0;
             for (int i = 0; i<data.length; i++) {
-                result[n] = data[i];
+                resultOne[n] = data[i];
                 double lastResult = data[i];
                 for (int j = i + 1; j < data.length; j++) {
                     if (data[j] < lastResult && n < (len/2)) {
-                        result[++n] = data[j];
+                        resultOne[++n] = data[j];
                         lastResult = data[j];
                     }
                     if (data[j] > lastResult && n >= (len/2) && n < len-1) {
-                        result[++n] = data[j];
+                        resultOne[++n] = data[j];
                         lastResult = data[j];
                     }
                 }
-                if (n == len - 1) break;
-                else n = 0;
+
+//                if (n == len - 1) break;
+//                else n = 0;
+                if (n == len - 1) {
+                    for (double aResult : resultOne) resultArray.add(aResult);
+                    n = 0;
+                } else {
+                    n = 0;
+                }
             }
 
         }
 
-        if (result[result.length-1] == -1) {
+
+//        if (result[result.length-1] == -1) {
+//            System.out.println("getDataWithTrend()：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
+//            return null;
+//        } else {
+//            return result;
+
+        //ArrayList转数组
+        double[] resultDouble = new double[resultArray.size()];
+        for (int i = 0; i < resultArray.size(); i++) {
+            resultDouble[i] = resultArray.get(i);
+        }
+
+        //返回结果
+        if (resultDouble.length == 0){
             System.out.println("getDataWithTrend()：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
             return null;
         } else {
-            return result;
+            return resultDouble;
         }
+
     }
 
     public static void main(String[] args) throws ParseException {
@@ -216,7 +262,7 @@ public class DataFitting {
         //double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-03-05 00:00:00");
         double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
 
-        double[] result = df.getDataWithTrend(data,"up",4,5);
+        double[] result = df.getDataWithTrend(data,"up",5,5);
         for (double aResult : result) System.out.print(aResult + ", ");
 
 
