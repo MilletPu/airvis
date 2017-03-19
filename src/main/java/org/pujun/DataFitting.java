@@ -1,7 +1,12 @@
 package org.pujun;
 
 import com.mongodb.*;
+import com.opencsv.CSVWriter;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -129,7 +134,7 @@ public class DataFitting {
      * @param len 子数组长度 - 4、8、12、16、20、24、32、40
      * @param maxNum 子数组个数
      */
-    public double[] getDataWithTrend(double[] data, String type, int len, int maxNum){
+    public double[][] getDataWithTrend(double[] data, String type, int len, int maxNum) throws IOException {
         double[] resultOne = new double[len];
         ArrayList<Double> resultArray = new ArrayList<Double>();
         for(int i = 0; i< resultOne.length; i++) resultOne[i] = -1;
@@ -224,30 +229,62 @@ public class DataFitting {
 
         }
 
+
         //ArrayList转数组
         double[] resultDouble = new double[resultArray.size()];
         for (int i = 0; i < resultArray.size(); i++) {
             resultDouble[i] = resultArray.get(i);
         }
 
+
+        //写入csv
+        File file = new File("result.csv");
+        Writer writer = new FileWriter(file);
+        CSVWriter cw = new CSVWriter(writer, ',');
+
+        int col = len;
+        int row = resultDouble.length/len;
+        int m = 0;
+        String[] strs = new String[col];
+
+        double[][] result = new double[row][col];
+        for (int i = 0; i < row; i++){
+            for (int j = 0; j < col; j++) {
+                result[i][j] = resultDouble[m];     //为返回结果做准备
+                strs[j] = String.valueOf(resultDouble[m]);      //为写入csv做准备
+                m++;
+            }
+            cw.writeNext(strs);     //写入csv
+        }
+        cw.close();
+
         //返回结果
         if (resultDouble.length == 0){
             System.out.println("getDataWithTrend()：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
             return null;
         } else {
-            return resultDouble;
+            System.out.println("getDataWithTrend()：一共查询到 "+ resultDouble.length/len +" 个字数组！");
+            //for (double aResult : resultDouble) System.out.print(aResult + ", ");
+            return result;
         }
+
 
     }
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws ParseException, IOException {
         DataFitting df = new DataFitting();
-        //double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-03-05 00:00:00");
-        double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
+        double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-04-01 00:00:00");
+        //double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
 
-        double[] result = df.getDataWithTrend(data,"up",5,5);
-        for (double aResult : result) System.out.print(aResult + ", ");
+        double[][] result = df.getDataWithTrend(data,"up",4,5);
 
+        //控制台打印看一看
+        for (int i = 0; i < 11; i++) {
+            for (int j = 0; j < 4; j++) {
+                System.out.print(result[i][j] + ", ");
+            }
+            System.out.println("");
+        }
 
     }
 
