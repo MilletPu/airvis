@@ -135,7 +135,6 @@ public class DataFitting {
 
         if (type.equals("up")) {
             int n = 0;
-            int num = 0;
             for (int i = 0; i < data.length; i++) {
                 result[n] = data[i];
                 double lastResult = data[i];
