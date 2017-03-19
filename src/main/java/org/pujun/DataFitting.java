@@ -134,7 +134,7 @@ public class DataFitting {
      * @param len 子数组长度 - 4、8、12、16、20、24、32、40
      * @param maxNum 子数组个数
      */
-    public double[][] getDataWithTrend(double[] data, String type, int len, int maxNum) throws IOException {
+    public double[][] getDataWithTrend(double[] data, String type, int len, int maxNum, String fileAdd) throws IOException {
         double[] resultOne = new double[len];
         ArrayList<Double> resultArray = new ArrayList<Double>();
         for(int i = 0; i< resultOne.length; i++) resultOne[i] = -1;
@@ -238,7 +238,7 @@ public class DataFitting {
 
 
         //写入csv
-        File file = new File("result.csv");
+        File file = new File(fileAdd);
         Writer writer = new FileWriter(file);
         CSVWriter cw = new CSVWriter(writer, ',');
 
@@ -267,16 +267,28 @@ public class DataFitting {
             //for (double aResult : resultDouble) System.out.print(aResult + ", ");
             return result;
         }
+    }
 
-
+    /**
+     * 重载getDataWithTrend，默认csv文件地址"result.csv"
+     * @param data
+     * @param type
+     * @param len
+     * @param maxNum
+     * @return
+     * @throws IOException
+     */
+    public double[][] getDataWithTrend(double[] data, String type, int len, int maxNum) throws IOException {
+        String fileAdd = "result.csv";
+        return getDataWithTrend(data,type,len,maxNum,fileAdd);
     }
 
     public static void main(String[] args) throws ParseException, IOException {
+        //double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
+
         DataFitting df = new DataFitting();
         double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-04-01 00:00:00");
-        //double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
-
-        double[][] result = df.getDataWithTrend(data,"up",4,5);
+        double[][] result = df.getDataWithTrend(data,"up",4,5,"up.csv");
 
         //控制台打印看一看
         for (int i = 0; i < 11; i++) {
@@ -286,6 +298,9 @@ public class DataFitting {
             System.out.println("");
         }
 
+
     }
+
+
 
 }
