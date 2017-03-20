@@ -127,6 +127,142 @@ public class DataFitting {
     }
 
 
+    //递归出口
+    public void out(int l,int r,double[] ans){
+        for(int i = l;i<=r;i++){
+            System.out.print(ans[i] + ", ");
+        }
+        System.out.println("\n");
+    }
+
+
+    /**
+     * 找所有上升
+     * @param step 时间戳
+     * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
+     * @param num_len num数组的总长度
+     * @param ans_len ans最终留下的长度
+     * @param ans 结果数组
+     * @param num 原始数据
+     */
+    void up(int step,int ans_have_len,int num_len,int ans_len,double[] ans,double[] num){
+        num[0] = ans[0] = Double.NEGATIVE_INFINITY;
+
+        if(ans_have_len == ans_len){
+            out(1,ans_len,ans);
+            return;
+        }
+        for(int i = step;i<num_len;i++){
+            if(num[i] > ans[ans_have_len]){
+                ans[ans_have_len+1] = num[i];
+                up(i + 1, ans_have_len + 1, num_len, ans_len, ans, num);
+            }
+        }
+    }
+
+    /**
+     * 找所有下降
+     * @param step 时间戳
+     * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
+     * @param num_len num数组的总长度
+     * @param ans_len ans最终留下的长度
+     * @param ans 结果数组
+     * @param num 原始数据
+     */
+    void down(int step,int ans_have_len,int num_len,int ans_len,double[] ans,double[] num){
+        num[0] = ans[0] = Double.POSITIVE_INFINITY;
+        if(ans_have_len == ans_len){
+            out(1,ans_len,ans);
+            return;
+        }
+        for(int i = step;i<num_len;i++){
+            if(num[i] < ans[ans_have_len]){
+                ans[ans_have_len+1] = num[i];
+                down(i + 1, ans_have_len + 1, num_len, ans_len, ans, num);
+            }
+        }
+    }
+
+
+    /**
+     * 找所有峰值
+     * @param step 时间戳
+     * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
+     * @param k 峰值顶点处
+     * @param num_len num数组的总长度
+     * @param ans_len ans最终留下的长度
+     * @param ans 结果数组
+     * @param num 原始数据
+     */
+    void peak(int step,int ans_have_len,int k,int num_len,int ans_len,double[] ans,double[] num){
+
+        num[0] = ans[0] = Double.NEGATIVE_INFINITY;
+        if(ans_have_len<=k){
+            if(ans_have_len == ans_len){
+                out(1,ans_len,ans);
+                return;
+            }
+            for(int i = step;i<num_len;i++){
+                if(num[i] > ans[ans_have_len]){
+                    ans[ans_have_len+1] = num[i];
+                    peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num);
+                }
+            }
+        }
+        else{
+            if(ans_have_len == ans_len){
+                out(1,ans_len,ans);
+                return;
+            }
+            for(int i = step;i<num_len;i++){
+                if(num[i] < ans[ans_have_len]){
+                    ans[ans_have_len+1] = num[i];
+                    peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num);
+                }
+            }
+        }
+    }
+
+    /**
+     * 找所有低估
+     * @param step 时间戳
+     * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
+     * @param k 低估顶点处
+     * @param num_len num数组的总长度
+     * @param ans_len ans最终留下的长度
+     * @param ans 结果数组
+     * @param num 原始数据
+     */
+    void trough(int step,int ans_have_len,int k,int num_len,int ans_len,double[] ans,double[] num){
+        num[0] = ans[0] = Double.POSITIVE_INFINITY;
+        if(ans_have_len<=k){
+            if(ans_have_len == ans_len){
+                out(1,ans_len,ans);
+                return;
+            }
+            for(int i = step;i<num_len;i++){
+                if(num[i] < ans[ans_have_len]){
+                    ans[ans_have_len+1] = num[i];
+                    trough(i+1,ans_have_len+1,k,num_len,ans_len,ans,num);
+                }
+            }
+        }
+        else{
+            if(ans_have_len == ans_len){
+                out(1,ans_len,ans);
+                return;
+            }
+            for(int i = step;i<num_len;i++){
+                if(num[i] > ans[ans_have_len]){
+                    ans[ans_have_len+1] = num[i];
+                    trough(i+1,ans_have_len+1,k,num_len,ans_len,ans,num);
+                }
+            }
+        }
+    }
+
+
+
     /**
      * 从数组中挖掘出符合特征的子数组
      * @param data 传入的数组
@@ -283,10 +419,13 @@ public class DataFitting {
 
     public static void main(String[] args) throws ParseException, IOException {
         double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
-
+        double[] result = new double[100];
         DataFitting df = new DataFitting();
+        //df.down(1, 0, testData.length, 4, result,testData);
+        df.trough(1, 0, 1, testData.length, 4, result,testData);
+
         //double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-11-01 00:00:00");
-        df.getDataWithTrend(testData, "up", 4);
+//        df.getDataWithTrend(testData, "up", 4);
 
 
 //        for(int len =4; len<=32; len=len+4) {
