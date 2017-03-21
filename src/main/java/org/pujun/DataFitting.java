@@ -15,6 +15,9 @@ import java.util.*;
  * Created by milletpu on 2017/3/16.
  */
 public class DataFitting {
+    ArrayList<String[]> result = new ArrayList<String[]>(); //结果result
+    int time = 0;    //递归次数计数
+
 
     //链接数据库
     MongoClient client = new MongoClient("127.0.0.1", 27017);
@@ -127,66 +130,82 @@ public class DataFitting {
     }
 
 
+
     //递归出口
-    public void out(int l,int r,double[] ans){
-        for(int i = l;i<=r;i++){
-            System.out.print(ans[i] + ", ");
+    public void out(int l,int r,double[] ans, int maxNum) throws IOException {
+        //递归出口打印结果
+        String[] res = new String[r];
+        for(int i = l;i<=r; i++){
+            //System.out.print(ans[i] + ", ");
+            res[i-1] = String.valueOf(ans[i]);
         }
-        System.out.println("\n");
+        //System.out.println("\n");
+        if(result.size()<maxNum) {
+            result.add(res);
+        }
+
+
     }
 
 
     /**
      * 找所有上升
-     * @param step 时间戳
+     * @param step 时间戳（初始化为1）
      * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
      * @param num_len num数组的总长度
      * @param ans_len ans最终留下的长度
      * @param ans 结果数组
      * @param num 原始数据
      */
-    void up(int step,int ans_have_len,int num_len,int ans_len,double[] ans,double[] num){
-        num[0] = ans[0] = Double.NEGATIVE_INFINITY;
-
-        if(ans_have_len == ans_len){
-            out(1,ans_len,ans);
-            return;
-        }
-        for(int i = step;i<num_len;i++){
-            if(num[i] > ans[ans_have_len]){
-                ans[ans_have_len+1] = num[i];
-                up(i + 1, ans_have_len + 1, num_len, ans_len, ans, num);
+    public void up(int step,int ans_have_len,int num_len,int ans_len,double[] ans,double[] num, int maxNum, int maxTime) throws IOException {
+        time++;
+        if (time < maxTime) {
+            num[0] = ans[0] = Double.NEGATIVE_INFINITY;
+            if (ans_have_len == ans_len) {
+                out(1, ans_len, ans, maxNum);
+                return;
+            }
+            for (int i = step; i < num_len; i++) {
+                if (num[i] > ans[ans_have_len]) {
+                    ans[ans_have_len + 1] = num[i];
+                    up(i + 1, ans_have_len + 1, num_len, ans_len, ans, num, maxNum, maxTime);
+                }
             }
         }
+
     }
 
     /**
      * 找所有下降
-     * @param step 时间戳
+     * @param step 时间戳（初始化为1）
      * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
      * @param num_len num数组的总长度
      * @param ans_len ans最终留下的长度
      * @param ans 结果数组
      * @param num 原始数据
      */
-    void down(int step,int ans_have_len,int num_len,int ans_len,double[] ans,double[] num){
-        num[0] = ans[0] = Double.POSITIVE_INFINITY;
-        if(ans_have_len == ans_len){
-            out(1,ans_len,ans);
-            return;
-        }
-        for(int i = step;i<num_len;i++){
-            if(num[i] < ans[ans_have_len]){
-                ans[ans_have_len+1] = num[i];
-                down(i + 1, ans_have_len + 1, num_len, ans_len, ans, num);
+    public void down(int step,int ans_have_len,int num_len,int ans_len,double[] ans,double[] num, int maxNum, int maxTime) throws IOException {
+        time++;
+        if (time < maxTime) {
+            num[0] = ans[0] = Double.POSITIVE_INFINITY;
+            if (ans_have_len == ans_len) {
+                out(1, ans_len, ans, maxNum);
+                return;
+            }
+            for (int i = step; i < num_len; i++) {
+                if (num[i] < ans[ans_have_len]) {
+                    ans[ans_have_len + 1] = num[i];
+                    down(i + 1, ans_have_len + 1, num_len, ans_len, ans, num, maxNum, maxTime);
+                }
             }
         }
     }
 
 
+
     /**
      * 找所有峰值
-     * @param step 时间戳
+     * @param step 时间戳（初始化为1）
      * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
      * @param k 峰值顶点处
      * @param num_len num数组的总长度
@@ -194,38 +213,39 @@ public class DataFitting {
      * @param ans 结果数组
      * @param num 原始数据
      */
-    void peak(int step,int ans_have_len,int k,int num_len,int ans_len,double[] ans,double[] num){
-
-        num[0] = ans[0] = Double.NEGATIVE_INFINITY;
-        if(ans_have_len<=k){
-            if(ans_have_len == ans_len){
-                out(1,ans_len,ans);
-                return;
-            }
-            for(int i = step;i<num_len;i++){
-                if(num[i] > ans[ans_have_len]){
-                    ans[ans_have_len+1] = num[i];
-                    peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num);
+    public void peak(int step,int ans_have_len,int k,int num_len,int ans_len,double[] ans,double[] num, int maxNum, int maxTime) throws IOException {
+        time++;
+        if (time < maxTime) {
+            num[0] = ans[0] = Double.NEGATIVE_INFINITY;
+            if (ans_have_len <= k) {
+                if (ans_have_len == ans_len) {
+                    out(1, ans_len, ans, maxNum);
+                    return;
                 }
-            }
-        }
-        else{
-            if(ans_have_len == ans_len){
-                out(1,ans_len,ans);
-                return;
-            }
-            for(int i = step;i<num_len;i++){
-                if(num[i] < ans[ans_have_len]){
-                    ans[ans_have_len+1] = num[i];
-                    peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num);
+                for (int i = step; i < num_len; i++) {
+                    if (num[i] > ans[ans_have_len]) {
+                        ans[ans_have_len + 1] = num[i];
+                        peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
+                    }
+                }
+            } else {
+                if (ans_have_len == ans_len) {
+                    out(1, ans_len, ans, maxNum);
+                    return;
+                }
+                for (int i = step; i < num_len; i++) {
+                    if (num[i] < ans[ans_have_len]) {
+                        ans[ans_have_len + 1] = num[i];
+                        peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
+                    }
                 }
             }
         }
     }
 
     /**
-     * 找所有低估
-     * @param step 时间戳
+     * 找所有低谷
+     * @param step 时间戳（初始化为1）
      * @param ans_have_len 表示ans已经存放的数据长度（递归使用，初始化为0）
      * @param k 低估顶点处
      * @param num_len num数组的总长度
@@ -233,34 +253,35 @@ public class DataFitting {
      * @param ans 结果数组
      * @param num 原始数据
      */
-    void trough(int step,int ans_have_len,int k,int num_len,int ans_len,double[] ans,double[] num){
-        num[0] = ans[0] = Double.POSITIVE_INFINITY;
-        if(ans_have_len<=k){
-            if(ans_have_len == ans_len){
-                out(1,ans_len,ans);
-                return;
-            }
-            for(int i = step;i<num_len;i++){
-                if(num[i] < ans[ans_have_len]){
-                    ans[ans_have_len+1] = num[i];
-                    trough(i+1,ans_have_len+1,k,num_len,ans_len,ans,num);
+    public void trough(int step,int ans_have_len,int k,int num_len,int ans_len,double[] ans,double[] num, int maxNum, int maxTime) throws IOException {
+        time++;
+        if (time < maxTime) {
+            num[0] = ans[0] = Double.POSITIVE_INFINITY;
+            if (ans_have_len <= k) {
+                if (ans_have_len == ans_len) {
+                    out(1, ans_len, ans, maxNum);
+                    return;
                 }
-            }
-        }
-        else{
-            if(ans_have_len == ans_len){
-                out(1,ans_len,ans);
-                return;
-            }
-            for(int i = step;i<num_len;i++){
-                if(num[i] > ans[ans_have_len]){
-                    ans[ans_have_len+1] = num[i];
-                    trough(i+1,ans_have_len+1,k,num_len,ans_len,ans,num);
+                for (int i = step; i < num_len; i++) {
+                    if (num[i] < ans[ans_have_len]) {
+                        ans[ans_have_len + 1] = num[i];
+                        trough(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
+                    }
+                }
+            } else {
+                if (ans_have_len == ans_len) {
+                    out(1, ans_len, ans, maxNum);
+                    return;
+                }
+                for (int i = step; i < num_len; i++) {
+                    if (num[i] > ans[ans_have_len]) {
+                        ans[ans_have_len + 1] = num[i];
+                        trough(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
+                    }
                 }
             }
         }
     }
-
 
 
     /**
@@ -269,183 +290,100 @@ public class DataFitting {
      * @param type 子数组类型 - 上升、下降、峰值、低谷
      * @param len 子数组长度 - 4、8、12、16、20、24、32、40
      */
-    public double[][] getDataWithTrend(double[] data, String type, int len, String fileAdd) throws IOException {
-        double[] resultOne = new double[len];
-        ArrayList<Double> resultArray = new ArrayList<Double>();
-        for(int i = 0; i< resultOne.length; i++) resultOne[i] = -1;
+    public void getDataWithTrend(double[] data, String type, int len, int maxNum, int maxTime) throws IOException {
+        double[] ans = new double[100];
 
         if (type.equals("up")) {
-            int n = 0;
-            for (int i = 0; i < data.length; i++) {
-                resultOne[n] = data[i];
-                double lastResult = data[i];
-                for (int j = i + 1; j < data.length; j++) {
-                    if (data[j] > lastResult && n < len - 1) {
-                        resultOne[++n] = data[j];
-                        lastResult = data[j];
-                    }
-                }
-
-                if (n == len - 1) {
-                    for (double aResult : resultOne) resultArray.add(aResult);
-                    n = 0;
-                } else {
-                    n = 0;
-                }
+            up(1, 0, data.length, len, ans, data, maxNum, maxTime);
+            String fileAdd = len + "up" +".csv";
+            File file = new File(fileAdd);
+            Writer writer = new FileWriter(file);
+            CSVWriter cw = new CSVWriter(writer, ',');
+            for (String[] aResult : result) cw.writeNext(aResult); //写入csv
+            cw.close();
+            if (result.size()==0){
+                System.out.println("Failed:  getDataWithTrend()."+type+"     没有找到长度为" +len+ "的子数组！");
+            }else{
+                System.out.println("Succeed: getDataWithTrend()."+type+"     找到了长度为" +len+ "的子数组" + result.size()+ "个。");
             }
+            result.clear();
+            time = 0;
+
 
         } else if (type.equals("down")) {
-            int n = 0;
-            for (int i = 0; i<data.length; i++) {
-                resultOne[n] = data[i];
-                double lastResult = data[i];
-                for (int j = i + 1; j < data.length; j++) {
-                    if (data[j] < lastResult && n < len-1) {
-                        resultOne[++n] = data[j];
-                        lastResult = data[j];
-                    }
-                }
-
-                if (n == len - 1) {
-                    for (double aResult : resultOne) resultArray.add(aResult);
-                    n = 0;
-                } else {
-                    n = 0;
-                }
+            down(1, 0, data.length, len, ans ,data, maxNum, maxTime);
+            String fileAdd = len + "down" +".csv";
+            File file = new File(fileAdd);
+            Writer writer = new FileWriter(file);
+            CSVWriter cw = new CSVWriter(writer, ',');
+            for (String[] aResult : result) cw.writeNext(aResult); //写入csv
+            cw.close();
+            if (result.size()==0){
+                System.out.println("Failed:  getDataWithTrend()."+type+"   没有找到长度为" +len+ "的子数组！");
+            }else{
+                System.out.println("Succeed: getDataWithTrend()."+type+"   找到了长度为" +len+ "的子数组" + result.size()+ "个。");
             }
+            result.clear();
+            time = 0;
 
         } else if (type.equals("peak")) {
-            int n = 0;
-            for (int i = 0; i<data.length; i++) {
-                resultOne[n] = data[i];
-                double lastResult = data[i];
-                for (int j = i + 1; j < data.length; j++) {
-                    if (data[j] > lastResult && n < (len/2)) {
-                        resultOne[++n] = data[j];
-                        lastResult = data[j];
-                    }
-                    if (data[j] < lastResult && n >= (len/2) && n < len-1) {
-                        resultOne[++n] = data[j];
-                        lastResult = data[j];
-                    }
-                }
-
-                if (n == len - 1) {
-                    for (double aResult : resultOne) resultArray.add(aResult);
-                    n = 0;
-                } else {
-                    n = 0;
-                }
+            peak(1, 0, 4, data.length, len, ans, data, maxNum, maxTime);
+            String fileAdd = len + "peak" +".csv";
+            File file = new File(fileAdd);
+            Writer writer = new FileWriter(file);
+            CSVWriter cw = new CSVWriter(writer, ',');
+            for (String[] aResult : result) cw.writeNext(aResult); //写入csv
+            cw.close();
+            if (result.size()==0){
+                System.out.println("Failed:  getDataWithTrend()."+type+"   没有找到长度为" +len+ "的子数组！");
+            }else{
+                System.out.println("Succeed: getDataWithTrend()."+type+"   找到了长度为" +len+ "的子数组" + result.size()+ "个。");
             }
+            result.clear();
+            time = 0;
 
         } else if (type.equals("trough")) {
-            int n = 0;
-            for (int i = 0; i<data.length; i++) {
-                resultOne[n] = data[i];
-                double lastResult = data[i];
-                for (int j = i + 1; j < data.length; j++) {
-                    if (data[j] < lastResult && n < (len/2)) {
-                        resultOne[++n] = data[j];
-                        lastResult = data[j];
-                    }
-                    if (data[j] > lastResult && n >= (len/2) && n < len-1) {
-                        resultOne[++n] = data[j];
-                        lastResult = data[j];
-                    }
-                }
-
-                if (n == len - 1) {
-                    for (double aResult : resultOne) resultArray.add(aResult);
-                    n = 0;
-                } else {
-                    n = 0;
-                }
+            trough(1, 0, 4, data.length, len, ans, data, maxNum, maxTime);
+            String fileAdd = len + "trough" +".csv";
+            File file = new File(fileAdd);
+            Writer writer = new FileWriter(file);
+            CSVWriter cw = new CSVWriter(writer, ',');
+            for (String[] aResult : result) cw.writeNext(aResult); //写入csv
+            cw.close();
+            if (result.size()==0){
+                System.out.println("Failed:  getDataWithTrend()."+type+" 没有找到长度为" +len+ "的子数组！");
+            }else{
+                System.out.println("Succeed: getDataWithTrend()."+type+" 找到了长度为" +len+ "的子数组" + result.size()+ "个。");
             }
+            result.clear();
+            time = 0;
 
         }
 
+        //无返回值
 
-        //ArrayList转数组
-        double[] resultDouble = new double[resultArray.size()];
-        for (int i = 0; i < resultArray.size(); i++) {
-            resultDouble[i] = resultArray.get(i);
-        }
-
-
-        //写入csv
-        File file = new File(fileAdd);
-        Writer writer = new FileWriter(file);
-        CSVWriter cw = new CSVWriter(writer, ',');
-
-        int col = len;
-        int row = resultDouble.length/len;
-        int m = 0;
-        String[] strs = new String[col];
-
-        double[][] result = new double[row][col];
-        for (int i = 0; i < row; i++){
-            for (int j = 0; j < col; j++) {
-                result[i][j] = resultDouble[m];     //为返回结果做准备
-                strs[j] = String.valueOf(resultDouble[m]);      //为写入csv做准备
-                m++;
-            }
-            cw.writeNext(strs);     //写入csv
-        }
-        cw.close();
-
-        //返回结果
-        if (resultDouble.length == 0){
-            System.out.println("getDataWithTrend()."+len+type+"：无法找到长度为"+len+"的子数组，请缩减子数组长度len值或增加data数组的长度！");
-            return null;
-        } else {
-            System.out.println("getDataWithTrend()."+len+type+"：一共查询到 "+ resultDouble.length/len +" 个子数组！");
-            //for (double aResult : resultDouble) System.out.print(aResult + ", ");
-            return result;
-        }
     }
 
-    /**
-     * 重载getDataWithTrend，默认csv文件地址len+type.csv
-     * @param data
-     * @param type
-     * @param len
-     * @return
-     * @throws IOException
-     */
-    public double[][] getDataWithTrend(double[] data, String type, int len) throws IOException {
-        String fileAdd = len + type + ".csv";
-        return getDataWithTrend(data,type,len,fileAdd);
-    }
 
     public static void main(String[] args) throws ParseException, IOException {
-        double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
-        double[] result = new double[100];
+        //double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
+
         DataFitting df = new DataFitting();
-        //df.down(1, 0, testData.length, 4, result,testData);
-        df.trough(1, 0, 1, testData.length, 4, result,testData);
-
-        //double[] data = df.getDataByStation("1299A", "2015-03-01 00:00:00", "2015-11-01 00:00:00");
-//        df.getDataWithTrend(testData, "up", 4);
-
+        double[] data = df.getDataByStation("1299A", "2014-11-01 00:00:00", "2015-11-01 00:00:00");
+        df.getDataWithTrend(data, "peak", 32, 20, 10000);
 
 //        for(int len =4; len<=32; len=len+4) {
-//            df.getDataWithTrend(data, "up", len);
-//            df.getDataWithTrend(data, "down", len);
-//            df.getDataWithTrend(data, "peak", len);
-//            df.getDataWithTrend(data, "trough", len);
+//            df.getDataWithTrend(data, "up", len, 20, 10000);
+//            df.getDataWithTrend(data, "down", len, 20, 10000);
+//            df.getDataWithTrend(data, "peak", len, 20, 10000);
+//            df.getDataWithTrend(data, "trough", len, 20, 10000);
 //        }
-
-
-//        //控制台打印看一看
-//        for (int i = 0; i < 11; i++) {
-//            for (int j = 0; j < 4; j++) {
-//                System.out.print(result[i][j] + ", ");
-//            }
-//            System.out.println("");
-//        }
-
 
     }
+
+
+
+
 
 
 
