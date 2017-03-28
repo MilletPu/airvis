@@ -22,7 +22,7 @@ public class DataFitting {
     //链接数据库
     MongoClient client = new MongoClient("127.0.0.1", 27017);
     DB db = client.getDB("airdb");
-    DBCollection pmDataDay = db.getCollection("pmdata_day");
+    DBCollection pmDataDay = db.getCollection("pm_data");
 
 
     /**
@@ -54,7 +54,7 @@ public class DataFitting {
                 thisDatePM25 = Double.parseDouble(cur.next().get("pm25").toString());
                 dataSeries.add(thisDatePM25);
             }
-            cal.add(Calendar.DATE, 1);  //时间+1day循环
+            cal.add(Calendar.HOUR, 1);  //时间+1day循环
             thisDate = cal.getTime();
         }
 
@@ -140,6 +140,7 @@ public class DataFitting {
             res[i-1] = String.valueOf(ans[i]);
         }
         //System.out.println("\n");
+
         if(result.size()<maxNum) {
             result.add(res);
         }
@@ -222,7 +223,7 @@ public class DataFitting {
                     out(1, ans_len, ans, maxNum);
                     return;
                 }
-                for (int i = step; i < num_len; i++) {
+                for (int i = step; i <= num_len; i++) {
                     if (num[i] > ans[ans_have_len]) {
                         ans[ans_have_len + 1] = num[i];
                         peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
@@ -233,7 +234,7 @@ public class DataFitting {
                     out(1, ans_len, ans, maxNum);
                     return;
                 }
-                for (int i = step; i < num_len; i++) {
+                for (int i = step; i <= num_len; i++) {
                     if (num[i] < ans[ans_have_len]) {
                         ans[ans_have_len + 1] = num[i];
                         peak(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
@@ -257,7 +258,7 @@ public class DataFitting {
         time++;
         if (time < maxTime) {
             num[0] = ans[0] = Double.POSITIVE_INFINITY;
-            if (ans_have_len <= k) {
+            if (ans_have_len < k) {
                 if (ans_have_len == ans_len) {
                     out(1, ans_len, ans, maxNum);
                     return;
@@ -274,7 +275,7 @@ public class DataFitting {
                     return;
                 }
                 for (int i = step; i < num_len; i++) {
-                    if (num[i] > ans[ans_have_len]) {
+                    if (num[i] >= ans[ans_have_len]) {
                         ans[ans_have_len + 1] = num[i];
                         trough(i + 1, ans_have_len + 1, k, num_len, ans_len, ans, num, maxNum, maxTime);
                     }
@@ -286,15 +287,19 @@ public class DataFitting {
 
     /**
      * 从数组中挖掘出符合特征的子数组
-     * @param data 传入的数组
+     * @param ndata 输入原始数组
      * @param type 子数组类型 - 上升、下降、峰值、低谷
      * @param len 子数组长度 - 4、8、12、16、20、24、32、40
      */
-    public void getDataWithTrend(double[] data, String type, int len, int maxNum, int maxTime) throws IOException {
+    public void getDataWithTrend(double[] ndata, String type, int len, int maxNum, int maxTime) throws IOException {
+        //data数组第0位用于设置为正负无穷占位，ndata所有数据后移一位
+        double[] data = new double[ndata.length+1];
+        System.arraycopy(ndata,0,data,1,ndata.length);
+
         double[] ans = new double[100];
 
         if (type.equals("up")) {
-            up(1, 0, data.length, len, ans, data, maxNum, maxTime);
+            up(1, 0, data.length-1, len, ans, data, maxNum, maxTime);
             String fileAdd = len + "up" +".csv";
             File file = new File(fileAdd);
             Writer writer = new FileWriter(file);
@@ -311,7 +316,7 @@ public class DataFitting {
 
 
         } else if (type.equals("down")) {
-            down(1, 0, data.length, len, ans ,data, maxNum, maxTime);
+            down(1, 0, data.length-1, len, ans ,data, maxNum, maxTime);
             String fileAdd = len + "down" +".csv";
             File file = new File(fileAdd);
             Writer writer = new FileWriter(file);
@@ -327,7 +332,7 @@ public class DataFitting {
             time = 0;
 
         } else if (type.equals("peak")) {
-            peak(1, 0, 4, data.length, len, ans, data, maxNum, maxTime);
+            peak(1, 0, len/2, data.length-1, len, ans, data, maxNum, maxTime);
             String fileAdd = len + "peak" +".csv";
             File file = new File(fileAdd);
             Writer writer = new FileWriter(file);
@@ -343,7 +348,7 @@ public class DataFitting {
             time = 0;
 
         } else if (type.equals("trough")) {
-            trough(1, 0, 4, data.length, len, ans, data, maxNum, maxTime);
+            trough(1, 0, len/2, data.length-1, len, ans, data, maxNum, maxTime);
             String fileAdd = len + "trough" +".csv";
             File file = new File(fileAdd);
             Writer writer = new FileWriter(file);
@@ -366,17 +371,20 @@ public class DataFitting {
 
 
     public static void main(String[] args) throws ParseException, IOException {
-        //double[] testData = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
-
+        //double[] data = {20,12,15,2,10,50,32,129,29,30,27,86,15,44,287,235,12,9,3,42,3,2,443,6};
+        double[] data = {1,2,23,3,4,24,5,6,7,25,8,9,26,10,9,27,8,7,6,28,5,4,29,3,2,30,1,11,31,12,13,32,14,15,33,16,17,34,18,19,35,20,35,19,18,34,17,16,33,15,13,32,14,12,11,31,30,29,10,9,20,8,7,19,6,5,4,3,2,1};
         DataFitting df = new DataFitting();
-        double[] data = df.getDataByStation("1299A", "2014-11-01 00:00:00", "2015-11-01 00:00:00");
-        df.getDataWithTrend(data, "peak", 32, 20, 10000);
+        System.out.println(data.length);
+        df.getDataWithTrend(data, "trough", 32, 20, 10000000);
 
+//        DataFitting df = new DataFitting();
+//        double[] data = df.getDataByStation("1299A", "2013-11-01 06:00:00", "2015-11-01 06:00:00");
+//
 //        for(int len =4; len<=32; len=len+4) {
-//            df.getDataWithTrend(data, "up", len, 20, 10000);
-//            df.getDataWithTrend(data, "down", len, 20, 10000);
-//            df.getDataWithTrend(data, "peak", len, 20, 10000);
-//            df.getDataWithTrend(data, "trough", len, 20, 10000);
+//            df.getDataWithTrend(data, "up", len, 20, 10000000);
+//            df.getDataWithTrend(data, "down", len, 20, 10000000);
+//            df.getDataWithTrend(data, "peak", len, 20, 10000000);
+//            df.getDataWithTrend(data, "trough", len, 20, 10000000);
 //        }
 
     }
